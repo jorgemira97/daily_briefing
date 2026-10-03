@@ -3,12 +3,15 @@ summarizer.py
 Módulo de discriminación, síntesis y auditoría factual con Google Gemini (gemini-3.5-flash-lite).
 Implementa un pipeline en dos etapas:
   1. Generación de borrador editorial denso y estructurado.
-  2. Auditoría factual (temp 0.0) con blindaje estricto de etiquetas <b> en conceptos clave.
+  2. Auditoría factual (temp 0.0) con blindaje de negritas y hechos.
+  3. Inyección determinista en Python de fecha y cabecera "The Digest Times" (Europe/Madrid).
 """
 
 import json
 import os
 import time
+from datetime import datetime
+import zoneinfo
 from typing import Dict, List, Any
 from dotenv import load_dotenv
 from google import genai
@@ -19,6 +22,26 @@ from collector import collect_news, load_config
 
 # Carga de credenciales locales
 load_dotenv()
+
+
+def get_deterministic_header() -> str:
+    """Calcula la fecha exacta en España peninsular y genera la cabecera fija."""
+    tz = zoneinfo.ZoneInfo("Europe/Madrid")
+    now = datetime.now(tz)
+
+    dias_semana = [
+        "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"
+    ]
+    meses_ano = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ]
+
+    nombre_dia = dias_semana[now.weekday()]
+    nombre_mes = meses_ano[now.month - 1]
+
+    fecha_formateada = f"{nombre_dia}, {now.day} de {nombre_mes} de {now.year}"
+    return f"<b>{fecha_formateada}</b>\n<b>The Digest Times</b>"
 
 
 def build_system_instruction(config: Dict[str, Any]) -> str:
@@ -93,14 +116,15 @@ REGLAS DE ESTILO Y FORMATO (HTML PARA TELEGRAM):
      🔬 <b>Ciencias</b>
      📍 <b>Novelda</b> (colócala SIEMPRE en la última posición del digest).
 3. Uso OBLIGATORIO de negritas <b>...</b> en el cuerpo:
-   - En cada párrafo, resalta en negrita las palabras, sujetos o datos numéricos más relevantes de cada noticia narrada (ejemplo: <b>el regulador antimonopolio</b>, <b>la adquisición de 12.000 millones</b> o <b>el primer ministro</b>).
-   - El texto DEBE contener negritas repartidas en los conceptos clave para facilitar el escaneo visual.
+   - En cada párrafo, resalta en negrita las palabras, sujetos o datos numéricos más relevantes de cada noticia narrada.
 4. Integración limpia de enlaces:
    - Al final de la frase que explica cada acontecimiento, inserta ÚNICAMENTE el nombre del medio enlazado entre paréntesis: (<a href="URL">Nombre del Medio</a>).
    - PROHIBIDO poner el título de la noticia entre paréntesis.
 5. Sintaxis HTML: Usa exclusivamente <b>, </i> y <a>. Cierra rigurosamente todas las etiquetas.
 6. Presupuesto de extensión: Bloque general entre 3.400 y 3.800 caracteres.
-7. Inicio directo: Comienza con la fecha del día en negrita y el primer bloque.
+7. ARRANQUE DIRECTO (SIN CABECERA NI FECHA):
+   - PROHIBIDO escribir la fecha, el día de la semana, saludos o títulos iniciales (estos son inyectados automáticamente por el sistema).
+   - Comienza DIRECTAMENTE con el encabezado de la primera sección: 🏛️ <b>Política</b>.
 """
 
 
@@ -116,11 +140,11 @@ REGLAS DE VERIFICACIÓN ESTRICTA:
    - Si el borrador incluye hechos no sustentados en las fuentes, ajústalos o elimínalos.
 
 2. BLINDAJE OBLIGATORIO DE NEGRITAS Y FORMATO HTML:
-   - PROHIBIDO ELIMINAR LAS NEGRITAS: El texto final DEBE conservar etiquetas <b>...</b> en las palabras, nombres, entidades o datos clave de cada párrafo para permitir una lectura rápida.
-   - Si el borrador carece de negritas en el cuerpo, debes añadirlas a los conceptos informativos más importantes de cada hecho narrado.
+   - PROHIBIDO ELIMINAR LAS NEGRITAS: El texto final DEBE conservar etiquetas <b>...</b> en las palabras, nombres, entidades o datos clave de cada párrafo.
    - Mantén idénticos los encabezados de sección con sus emojis (ej: 🏛️ <b>Política</b>) en su propia línea, sin añadir dos puntos (:).
    - Mantén los saltos de línea dobles entre secciones y el inicio de párrafo debajo del encabezado.
-   - Conserva los enlaces en formato exacto: (<a href="URL">Medio</a>) al final de cada frase, verificando que apunten a la URL correspondiente.
+   - Conserva los enlaces en formato exacto: (<a href="URL">Medio</a>) al final de cada frase.
+   - No incluyas fechas ni títulos globales en la apertura: el texto debe arrancar en 🏛️ <b>Política</b>.
 
 3. Modo de salida:
    - Devuelve ÚNICAMENTE el texto final completamente corregido, verificado y debidamente maquetado con sus negritas y enlaces en HTML.
@@ -139,7 +163,7 @@ def audit_and_verify_digest(draft_text: str, articles_payload: List[Dict[str, st
         f"{draft_text}\n\n"
         "Verifica minuciosamente la fidelidad factual de cada hecho, rol y cifra contra las fuentes originales. "
         "Asegúrate de PRESERVAR Y GARANTIZAR las negritas <b>...</b> en las palabras y conceptos más importantes de cada párrafo, "
-        "y devuelve el digest limpio y verificado en HTML."
+        "y devuelve el digest limpio y verificado en HTML, comenzando directamente en 🏛️ <b>Política</b>."
     )
 
     try:
@@ -158,7 +182,7 @@ def audit_and_verify_digest(draft_text: str, articles_payload: List[Dict[str, st
 
 
 def generate_digest(articles: List[Dict[str, str]], config: Dict[str, Any], max_retries: int = 3) -> str:
-    """Pipeline completo: 1) Redacción de borrador -> 2) Auditoría y verificación factual con negritas."""
+    """Pipeline completo: 1) Borrador -> 2) Auditoría -> 3) Inyección determinista de cabecera."""
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("No se encontró GEMINI_API_KEY en el archivo .env.")
@@ -183,6 +207,7 @@ def generate_digest(articles: List[Dict[str, str]], config: Dict[str, Any], max_
         "En Fútbol, respeta la jerarquía real del impacto informativo y aplica preferencia al Real Madrid solo entre la actualidad de clubes sin forzarla. "
         "Inserta los enlaces únicamente como (<a href=\"URL\">Medio</a>) al final de cada frase, sin títulos entre paréntesis. "
         "Aplica negritas <b>...</b> a las palabras y conceptos más importantes de cada párrafo. "
+        "Comienza DIRECTAMENTE con '🏛️ <b>Política</b>' sin ninguna fecha previa. "
         "Aprovecha el presupuesto de 3.400 a 3.800 caracteres para el bloque general y sitúa Novelda al final."
     )
 
@@ -213,8 +238,13 @@ def generate_digest(articles: List[Dict[str, str]], config: Dict[str, Any], max_
         raise RuntimeError("No se pudo generar el borrador editorial.")
 
     # Paso 2: Auditoría factual estricta con blindaje de negritas
-    verified_digest = audit_and_verify_digest(draft_text, articles_payload, client)
-    return verified_digest
+    verified_body = audit_and_verify_digest(draft_text, articles_payload, client)
+
+    # Paso 3: Inyección determinista de cabecera (Fecha en Madrid + The Digest Times)
+    header = get_deterministic_header()
+    final_digest = f"{header}\n\n{verified_body.strip()}"
+
+    return final_digest
 
 
 if __name__ == "__main__":
@@ -223,7 +253,7 @@ if __name__ == "__main__":
     if news:
         digest = generate_digest(news, cfg)
         print("\n" + "=" * 55)
-        print("DIGEST AUDITADO CON NEGRITAS BLINDADAS")
+        print("DIGEST CON FECHA DETERMINISTA")
         print("=" * 55)
         print(digest)
         print("=" * 55)
