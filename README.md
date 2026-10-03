@@ -86,11 +86,6 @@ El contenido se estructura bajo un balance estricto de 8 secciones priorizadas p
 
 ---
 
-## Prerrequisitos
-Python 3.11 o superior.
-API Key de Google Gemini (Google AI Studio).
-Token de Bot de Telegram y Chat ID destino.
-
 ## 🛡️ Declaración de Diligencia y Gobernanza de IA (Diligence Statement)
 Este proyecto ha sido desarrollado bajo un marco estructurado de Ingeniería Colaborativa Humano-IA, estableciendo límites precisos entre automatización generativa y gobernanza técnica:
 
