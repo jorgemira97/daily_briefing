@@ -1,0 +1,132 @@
+# config_sources.yaml
+# Configuración consolidada de fuentes RSS, taxonomía y reglas editoriales
+
+sources:
+  el_pais:
+    name: "El País"
+    feeds:
+      internacional: "https://elpais.com/rss/internacional/portada.xml"
+      economia: "https://elpais.com/rss/economia/portada.xml"
+      cultura: "https://elpais.com/rss/cultura/portada.xml"
+      tecnologia: "https://elpais.com/rss/tecnologia/portada.xml"
+      deportes: "https://elpais.com/rss/deportes/portada.xml"
+
+  el_diario:
+    name: "elDiario.es"
+    feeds:
+      internacional: "https://www.eldiario.es/rss/internacional/"
+      tecnologia: "https://www.eldiario.es/rss/tecnologia/"
+      cultura: "https://www.eldiario.es/rss/cultura/"
+
+  infolibre:
+    name: "infoLibre"
+    feeds:
+      general: "https://www.infolibre.es/rss/"
+
+  politico:
+    name: "Politico EU"
+    feeds:
+      general: "https://www.politico.eu/feed/"
+
+  the_guardian:
+    name: "The Guardian"
+    feeds:
+      world: "https://www.theguardian.com/world/rss"
+      technology: "https://www.theguardian.com/technology/rss"
+      culture: "https://www.theguardian.com/culture/rss"
+      football: "https://www.theguardian.com/football/rss"
+      science: "https://www.theguardian.com/science/rss"
+
+  nyt:
+    name: "The New York Times"
+    feeds:
+      world: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+      business: "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml"
+      technology: "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
+      science: "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml"
+
+  expansion:
+    name: "Expansión"
+    feeds:
+      economia: "https://e00-expansion.uecdn.es/rss/economia.xml"
+
+  the_verge:
+    name: "The Verge"
+    feeds:
+      tech: "https://www.theverge.com/rss/index.xml"
+
+  anaitgames:
+    name: "AnaitGames"
+    feeds:
+      videojuegos: "https://www.anaitgames.com/feed"
+
+  eurogamer:
+    name: "Eurogamer"
+    feeds:
+      videojuegos: "https://www.eurogamer.es/feed"
+
+  fotogramas:
+    name: "Fotogramas"
+    feeds:
+      cine_series: "https://www.fotogramas.es/rss/all.xml"
+
+  robotitus:
+    name: "Robotitus"
+    feeds:
+      ciencia: "https://robotitus.com/feed"
+
+  sinc:
+    name: "Agencia SINC"
+    feeds:
+      ciencia: "https://www.agenciasinc.es/feed/noticias"
+
+  marca:
+    name: "Marca"
+    feeds:
+      futbol: "https://e00-marca.uecdn.es/rss/futbol.xml"
+
+  novelda_digital:
+    name: "Novelda Digital"
+    feeds:
+      local: "https://noveldadigital.es/feed/"
+
+  ayto_novelda:
+    name: "Ayuntamiento de Novelda"
+    feeds:
+      noticias: "https://www.novelda.es/noticias-2/feed/"
+
+taxonomy:
+  allowed_topics:
+    - name: "Política"
+      scope: "Política nacional e internacional, legislación, geopolítica, diplomacia e instituciones públicas."
+    - name: "Economía"
+      scope: "Política monetaria y bancos centrales, operaciones corporativas de fusión y adquisición (M&A), regulación de mercados, industria, energía y tendencias macroeconómicas globales."
+    - name: "Tecnología"
+      scope: "Inteligencia artificial, desarrollo de software, hardware, ciberseguridad e impacto digital."
+    - name: "Entretenimiento"
+      scope: "Cine, series de televisión, estrenos y videojuegos con distribución o repercusión nacional o internacional. Excluir eventos o certámenes de circuito meramente local."
+    - name: "Cultura"
+      scope: "Arte, literatura, patrimonio histórico, arquitectura y pensamiento crítico con calado e impacto nacional o internacional. Excluir notas de agenda municipal o provincial."
+    - name: "Fútbol"
+      scope: "Competiciones oficiales, fichajes estratégicos y resultados relevantes. Excluir polémicas extradeportivas."
+    - name: "Ciencias"
+      scope: "Exploración espacial, física, descubrimientos empíricos, paleontología y biotecnología."
+    - name: "Novelda"
+      scope: "Actualidad municipal de Novelda: acuerdos plenarios, proyectos urbanos, servicios públicos, avisos municipales e hitos comunitarios destacados."
+
+  strict_exclusions:
+    - "Criptomonedas, activos digitales especulativos, tokens y blockchain financiera."
+    - "Trading intradiario, análisis técnico bursátil, cotizaciones de divisas o variaciones porcentuales de mercado sin impacto corporativo o regulatorio estructural."
+    - "Consejos de finanzas personales, microahorro, hipotecas domésticas o productos bancarios comerciales minoristas."
+    - "Artículos de opinión, tribunas personales, editoriales y columnas subjetivas."
+    - "Prensa rosa, celebridades, vida privada, cotilleos y realities."
+    - "Consejos de estilo de vida, bienestar comercial, dietas milagro o pseudociencia."
+    - "Sucesos menores de crónica negra sin impacto regulatorio o institucional relevante."
+
+  boundary_rules:
+    - instruction: "En Economía, descarta variaciones bursátiles intradiarias o análisis de cotizaciones sin operaciones corporativas o decisiones estructurales de fondo."
+    - instruction: "En Cultura y Entretenimiento, descarta cualquier noticia sobre agenda local, ferias de libro municipales, exposiciones provinciales o nombramientos directivos de entidades subnacionales."
+    - instruction: "Si una noticia de tecnología aborda cotizaciones o despidos financieros sin novedad de producto, descártala."
+    - instruction: "Si una noticia sobre cine, series o entretenimiento aborda rumores o vida privada, descártala."
+    - instruction: "Si una noticia de fútbol trata sobre discusiones personales o declaraciones extradeportivas, descártala."
+    - instruction: "Si una noticia local de Novelda es una simple anécdota o trámite rutinario sin impacto municipal, descártala."
