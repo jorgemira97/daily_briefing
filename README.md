@@ -86,20 +86,6 @@ El contenido se estructura bajo un balance estricto de 8 secciones priorizadas p
 
 ---
 
-## 📁 Estructura del Repositorio
-
-├── .github/
-│   └── workflows/
-│       └── daily_briefing.yml   # Workflow CI/CD (cron dual, validación horaria y keep-alive)
-├── collector.py                 # Ingesta, filtrado temporal de 24h y extracción de feeds RSS
-├── config_sources.yaml          # Catálogo de fuentes, taxonomía, reglas de frontera y exclusión
-├── delivery.py                  # Orquestador del pipeline, segmentación de mensajes y API de Telegram
-├── summarizer.py                # Pipeline dual LLM (Generador + Auditor Fact-Check a temp 0.0)
-├── requirements.txt             # Dependencias fijadas para el entorno de producción
-├── .gitignore                   # Blindaje contra subida de entornos (.env) y temporales
-├── log.txt                      # Registro mensual de actividad desatendida (keep-alive)
-└── README.md                    # Documentación técnica y Declaración de Diligencia
-
 ## Prerrequisitos
 Python 3.11 o superior.
 API Key de Google Gemini (Google AI Studio).
