@@ -2,10 +2,12 @@ name: Daily Morning Briefing
 
 on:
   schedule:
-    # Se programa a las 06:15 UTC y a las 07:15 UTC todos los días.
-    # Uno de estos dos disparos siempre corresponderá exactamente a las 08:15 en España.
+    # 06:15 UTC y 07:15 UTC (garantiza las 08:15 locales en España durante todo el año)
     - cron: '15 6,7 * * *'
-  workflow_dispatch: # Permite ejecución manual de prueba en cualquier momento
+  workflow_dispatch: # Disparo manual de prueba
+
+permissions:
+  contents: write # Permiso necesario para actualizar log.txt de forma autónoma
 
 jobs:
   run-briefing:
@@ -18,23 +20,21 @@ jobs:
       - name: Validar hora local en España (Europe/Madrid)
         id: time_check
         run: |
-          # Si se dispara manualmente por workflow_dispatch, ejecutar siempre
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
-            echo "Ejecución manual solicitada: omitiendo filtro horario."
+            echo "Ejecución manual: omitiendo filtro horario."
             exit 0
           fi
 
-          # Obtener la hora actual en el huso horario peninsular
           LOCAL_HOUR=$(TZ="Europe/Madrid" date +%H)
           echo "Hora detectada en Madrid: $LOCAL_HOUR"
 
           if [ "$LOCAL_HOUR" -eq 8 ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
-            echo "Ventana horaria correcta (08:XX en Madrid). Procediendo con la entrega."
+            echo "Ventana horaria correcta (08:XX en Madrid). Procediendo."
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
-            echo "Hora fuera de la ventana objetivo de las 08:15 (Madrid: $LOCAL_HOUR:XX). Omitiendo ejecución."
+            echo "Hora fuera de ventana (Madrid: $LOCAL_HOUR:XX). Omitiendo."
           fi
 
       - name: Configurar entorno Python
@@ -58,3 +58,19 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python delivery.py
+
+      - name: Registro mensual Keep-Alive (Día 1 de cada mes)
+        if: steps.time_check.outputs.should_run == 'true'
+        run: |
+          CURRENT_DAY=$(TZ="Europe/Madrid" date +%d)
+          if [ "$CURRENT_DAY" = "01" ]; then
+            echo "Día 1 del mes: registrando actividad para mantener activo el workflow de GitHub."
+            echo "Keep-alive ping: $(TZ='Europe/Madrid' date '+%Y-%m-%d %H:%M:%S %Z')" >> log.txt
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add log.txt
+            git commit -m "chore(keep-alive): monthly activity ping [skip ci]"
+            git push
+          else
+            echo "Día $CURRENT_DAY: no requiere registro de actividad hoy."
+          fi
