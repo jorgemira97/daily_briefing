@@ -21,7 +21,7 @@ Ventana temporal estricta: Filtrado automático para descartar cualquier noticia
 Sanitización de datos: Extracción normalizada de titular, sumario limpio y URL de origen en un esquema JSON estructurado, tolerante a variaciones de formato entre feeds RSS y Atom.
 
 ### 2. Síntesis Editorial y Auditoría en Dos Etapas (summarizer.py)
-Etapa 1 — Generador Editorial (gemini-3.5-flash-lite | Temp: 0.1):
+**Etapa 1** — Generador Editorial (gemini-3.5-flash-lite | Temp: 0.1):
 
 Aplica una taxonomía de 8 secciones cerradas con rúbrica de impacto (hechos estructurales de Nivel 1 frente a ruido o declaraciones retóricas).
 
@@ -29,7 +29,7 @@ Distribución equitativa de medios y control de extensión (presupuesto de 3.400
 
 Formateo semántico en HTML con enlaces integrados por medio.
 
-Etapa 2 — Auditor Factual Forense (Fact-Checker | Temp: 0.0):
+**Etapa 2** — Auditor Factual Forense (Fact-Checker | Temp: 0.0):
 
 Validación factual estricta (grounding) contrastando el borrador contra el volcado JSON original de noticias.
 
@@ -37,11 +37,11 @@ Mitigación de deriva de contexto (role-drift), corrigiendo atribuciones erróne
 
 Blindaje de sintaxis visual: garantiza la conservación obligatoria de etiquetas de negrita <b>...</b> en los puntos clave de cada párrafo.
 
-Etapa 3 — Inyección Determinista de Cabecera (Python nativo):
+**Etapa 3** — Inyección Determinista de Cabecera (Python nativo):
 
 Python calcula directamente la fecha en español bajo la zona horaria Europe/Madrid y antepone el encabezado oficial The Digest Times, eliminando el riesgo de alucinación temporal del modelo.
 
-###3. Orquestación y Entrega Desacoplada (delivery.py)
+### 3. Orquestación y Entrega Desacoplada (delivery.py)
 Control de límites: Validación del volumen de caracteres frente al tope estricto de 4.096 caracteres de la Telegram Bot API.
 
 Desacople modular: Envío independiente del bloque informativo general y de la píldora local de Novelda para evitar desbordamientos y permitir lectura segmentada.
