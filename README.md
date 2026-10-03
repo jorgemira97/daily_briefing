@@ -1,6 +1,6 @@
 # 🗞️ The Digest Times — Automated Morning Briefing Pipeline
 
-[![Daily Morning Briefing](https://github.com/<TU_USUARIO>/<TU_REPOSITORIO>/actions/workflows/daily_briefing.yml/badge.svg)](https://github.com/<TU_USUARIO>/<TU_REPOSITORIO>/actions/workflows/daily_briefing.yml)
+[![Daily Morning Briefing](https://github.com/jorgemira97/dailybriefing/actions/workflows/daily_briefing.yml/badge.svg)](https://github.com/jorgemira97/dailybriefing/actions/workflows/daily_briefing.yml)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![LLM](https://img.shields.io/badge/LLM-Gemini%203.5%20Flash--Lite-4285F4.svg?logo=google&logoColor=white)](https://ai.google.dev/)
 [![Telegram Bot API](https://img.shields.io/badge/Delivery-Telegram%20Bot%20API-26A5E4.svg?logo=telegram&logoColor=white)](https://core.telegram.org/bots/api)
@@ -11,10 +11,7 @@ Pipeline de producción autónomo y serverless para la ingesta, sintetización e
 ---
 
 ## 🏛️ Arquitectura del Sistema y Flujo de Datos
-                            [ FUENTES EXTERNAS ]
-                  (Feeds RSS Nacionales, Sectoriales y Locales)
-                                       │
-                                       ▼
+
  ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ 1. INGESTA Y NORMALIZACIÓN (collector.py)                                              │
 │    - Filtrado temporal estricto (ventana móvil de 24 horas).                           │
@@ -97,12 +94,12 @@ El contenido se estructura bajo un balance estricto de 8 secciones priorizadas p
 ├── log.txt                      # Registro mensual de actividad desatendida (keep-alive)
 └── README.md                    # Documentación técnica y Declaración de Diligencia
 
-Prerrequisitos
+## Prerrequisitos
 Python 3.11 o superior.
 API Key de Google Gemini (Google AI Studio).
 Token de Bot de Telegram y Chat ID destino.
 
-🛡️ Declaración de Diligencia y Gobernanza de IA (Diligence Statement)
+## 🛡️ Declaración de Diligencia y Gobernanza de IA (Diligence Statement)
 Este proyecto ha sido desarrollado bajo un marco estructurado de Ingeniería Colaborativa Humano-IA, estableciendo límites precisos entre automatización generativa y gobernanza técnica:
 
 1. Diligencia de Creación y Delegación de Tareas
