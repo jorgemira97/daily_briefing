@@ -1,6 +1,5 @@
 # 🗞️ The Digest Times — Automated Morning Briefing Pipeline
 
-[![Daily Morning Briefing](https://github.com/jorgemira97/dailybriefing/actions/workflows/daily_briefing.yml/badge.svg)](https://github.com/jorgemira97/dailybriefing/actions/workflows/daily_briefing.yml)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![LLM](https://img.shields.io/badge/LLM-Gemini%203.5%20Flash--Lite-4285F4.svg?logo=google&logoColor=white)](https://ai.google.dev/)
 [![Telegram Bot API](https://img.shields.io/badge/Delivery-Telegram%20Bot%20API-26A5E4.svg?logo=telegram&logoColor=white)](https://core.telegram.org/bots/api)
@@ -12,41 +11,49 @@ Pipeline de producción autónomo y serverless para la ingesta, sintetización e
 
 ## 🏛️ Arquitectura del Sistema y Flujo de Datos
 
- ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. INGESTA Y NORMALIZACIÓN (collector.py)                                              │
-│    - Filtrado temporal estricto (ventana móvil de 24 horas).                           │
-│    - Parsing tolerante a fallos de esquemas RSS/Atom heterogéneos.                     │
-│    - Sanitización y extracción de metadatos (título, sumario, URL canónica).           │
-└───────────────────────────────────┬────────────────────────────────────────────────────┘
-│ Payload JSON normalizado
-▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 2. SÍNTESIS EDITORIAL Y VERIFICACIÓN FORENSE (summarizer.py)                           │
-│    ├─ Etapa 1: Generador Editorial (Gemini 3.5 Flash-Lite | Temp: 0.1)                 │
-│    │    - Taxonomía estricta de 8 secciones y rúbrica de peso estructural vs. ruido.   │
-│    │    - Jerarquización objetiva, cobertura plural y presupuesto de caracteres.       │
-│    │    - Formato HTML semántico con enlaces embebidos por cabecera.                   │
-│    │                                                                                   │
-│    ├─ Etapa 2: Auditor Factual Forense (Fact-Checker | Temp: 0.0)                      │
-│    │    - Grounding estricto contra el JSON original (mitigación de sesgos contextuales)│
-│    │    - Blindaje de formato visual y conservación obligatoria de etiquetas .      │
-│    │                                                                                   │
-│    └─ Etapa 3: Inyección Determinista de Cabecera (Python Nativo)                      │
-│         - Cálculo exacto de fecha en 'Europe/Madrid' (eliminación de inferencia del LLM)│
-└───────────────────────────────────┬────────────────────────────────────────────────────┘
-│ Digest verificado en HTML
-▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 3. ENTREGA Y DESACOPLE MODULAR (delivery.py)                                           │
-│    - Control del límite estricto de Telegram (4.096 caracteres).                       │
-│    - Desacoplamiento de entrega: Bloque General + Píldora Local independiente.         │
-│    - Gestión de transporte y manejo de excepciones sobre Telegram Bot API.             │
-└───────────────────────────────────┬────────────────────────────────────────────────────┘
-│ HTTPS POST
-▼
-[ CLIENTE TELEGRAM ]
-(Entrega garantizada a las 08:15 CET / CEST)
----
+El sistema opera bajo un pipeline modular desacoplado en cuatro fases consecutivas, asegurando trazabilidad, tolerancia a fallos y determinismo en cada etapa:
+
+1. Ingesta y Normalización de Fuentes (collector.py)
+Consumo multi-feed: Rastreo concurrente de cabeceras de prensa generalista, económica, tecnológica, científica, deportiva y medios locales (config_sources.yaml).
+
+Ventana temporal estricta: Filtrado automático para descartar cualquier noticia publicada hace más de 24 horas respecto al momento de ejecución.
+
+Sanitización de datos: Extracción normalizada de titular, sumario limpio y URL de origen en un esquema JSON estructurado, tolerante a variaciones de formato entre feeds RSS y Atom.
+
+2. Síntesis Editorial y Auditoría en Dos Etapas (summarizer.py)
+Etapa 1 — Generador Editorial (gemini-3.5-flash-lite | Temp: 0.1):
+
+Aplica una taxonomía de 8 secciones cerradas con rúbrica de impacto (hechos estructurales de Nivel 1 frente a ruido o declaraciones retóricas).
+
+Distribución equitativa de medios y control de extensión (presupuesto de 3.400 a 3.800 caracteres).
+
+Formateo semántico en HTML con enlaces integrados por medio.
+
+Etapa 2 — Auditor Factual Forense (Fact-Checker | Temp: 0.0):
+
+Validación factual estricta (grounding) contrastando el borrador contra el volcado JSON original de noticias.
+
+Mitigación de deriva de contexto (role-drift), corrigiendo atribuciones erróneas de cargos o profesiones provocadas por la proximidad temática.
+
+Blindaje de sintaxis visual: garantiza la conservación obligatoria de etiquetas de negrita <b>...</b> en los puntos clave de cada párrafo.
+
+Etapa 3 — Inyección Determinista de Cabecera (Python nativo):
+
+Python calcula directamente la fecha en español bajo la zona horaria Europe/Madrid y antepone el encabezado oficial The Digest Times, eliminando el riesgo de alucinación temporal del modelo.
+
+3. Orquestación y Entrega Desacoplada (delivery.py)
+Control de límites: Validación del volumen de caracteres frente al tope estricto de 4.096 caracteres de la Telegram Bot API.
+
+Desacople modular: Envío independiente del bloque informativo general y de la píldora local de Novelda para evitar desbordamientos y permitir lectura segmentada.
+
+Gestión de transporte: Manejo de excepciones de red y confirmación de recepción en el cliente de Telegram.
+
+4. Automatización Serverless y Mantenimiento (daily_briefing.yml)
+Invarianza horaria (DST): Disparo dual en GitHub Actions (06:15 UTC y 07:15 UTC) respaldado por un script bash que evalúa la hora local en España, garantizando la entrega exacta a las 08:15 tanto en horario de verano (CEST) como de invierno (CET).
+
+Mecanismo Keep-Alive: Ejecución mensual condicionada (día 1 de cada mes) que genera un micro-commit en log.txt, evitando que GitHub Actions congele los flujos automáticos por la regla de 60 días de inactividad.
+
+Seguridad Zero-Trust: Repositorio público sin exposición de variables; inyección segura de credenciales mediante GitHub Secrets en entornos efímeros de Ubuntu.
 
 ## ⚙️ Características Técnicas y Decisiones de Diseño
 
