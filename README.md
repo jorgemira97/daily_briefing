@@ -88,7 +88,6 @@ El contenido se estructura bajo un balance estricto de 8 secciones priorizadas p
 
 ## 📁 Estructura del Repositorio
 
-```text
 ├── .github/
 │   └── workflows/
 │       └── daily_briefing.yml   # Workflow CI/CD (cron dual, validación horaria y keep-alive)
@@ -109,7 +108,7 @@ Token de Bot de Telegram y Chat ID destino.
 ## 🛡️ Declaración de Diligencia y Gobernanza de IA (Diligence Statement)
 Este proyecto ha sido desarrollado bajo un marco estructurado de Ingeniería Colaborativa Humano-IA, estableciendo límites precisos entre automatización generativa y gobernanza técnica:
 
-1. Diligencia de Creación y Delegación de Tareas
+**1. Diligencia de Creación y Delegación de Tareas**
 Modelo Base: gemini-3.5-flash-lite consumido a través del SDK oficial google-genai.
 
 Criterio de Elección: Optimización del balance entre coste computacional, baja latencia y ventana de contexto extendida para absorber decenas de artículos periodísticos en un solo prompt estructurado.
@@ -120,12 +119,12 @@ Capacidades delegadas a la IA: Extracción de tesis informativas, jerarquizació
 
 Responsabilidades reservadas a la lógica determinista (Python/Bash): Consumo HTTP de feeds, validación temporal de marcas de tiempo, cálculo invariante de calendario, control de límites de carga útil y transporte de red hacia Telegram.
 
-2. Diligencia de Despliegue y Control Factual
+**2. Diligencia de Despliegue y Control Factual**
 Mitigación de Alucinaciones (Fact-Checking Pipeline): Implementación de una arquitectura en dos etapas. Un segundo agente evaluador con temperature=0.0 audita el borrador contrastándolo directamente con el volcado crudo de las fuentes originales antes de autorizar el envío.
 
 Supervisión Estructural: El validador tiene restringida la modificación del maquetado HTML (<b>...</b> e hipervínculos estructurados), neutralizando el deterioro sintáctico común en salidas secuenciales de LLMs.
 
-3. Supervisión Humana (Human-in-the-Loop) y Responsabilidad
+**3. Supervisión Humana (Human-in-the-Loop) y Responsabilidad**
 Aunque el sistema opera en la nube con un 100% de autonomía técnica diaria:
 
 Gobernanza Editorial: El autor supervisa activamente la vigencia de los feeds en config_sources.yaml para corregir desvíos de redifusión de las cabeceras periodísticas y mitigar sesgos de cobertura.
