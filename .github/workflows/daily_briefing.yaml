@@ -2,12 +2,14 @@ name: Daily Morning Briefing
 
 on:
   schedule:
-    # 06:15 UTC y 07:15 UTC (garantiza las 08:15 locales en España durante todo el año)
-    - cron: '15 6,7 * * *'
+    # 06:15 UTC -> Corresponde a las 08:15 locales en horario de verano (CEST, UTC+2)
+    - cron: '15 6 * * *'
+    # 07:15 UTC -> Corresponde a las 08:15 locales en horario de invierno (CET, UTC+1)
+    - cron: '15 7 * * *'
   workflow_dispatch: # Disparo manual de prueba
 
 permissions:
-  contents: write # Permiso necesario para actualizar log.txt de forma autónoma
+  contents: write # Permiso para el micro-commit mensual de log.txt
 
 jobs:
   run-briefing:
