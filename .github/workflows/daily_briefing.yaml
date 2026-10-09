@@ -2,14 +2,13 @@ name: Daily Morning Briefing
 
 on:
   schedule:
-    # 06:15 UTC -> Corresponde a las 08:15 locales en horario de verano (CEST, UTC+2)
-    - cron: '15 6 * * *'
-    # 07:15 UTC -> Corresponde a las 08:15 locales en horario de invierno (CET, UTC+1)
-    - cron: '15 7 * * *'
-  workflow_dispatch: # Disparo manual de prueba
+    # 06:18 UTC -> 08:18 en España (horario de verano CEST) / 07:18 (horario de invierno CET)
+    # El minuto :18 evita la saturación global de GitHub Actions en :00 y :15
+    - cron: '18 6 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write # Permiso para el micro-commit mensual de log.txt
+  contents: write
 
 jobs:
   run-briefing:
@@ -19,7 +18,7 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Validar hora local en España (Europe/Madrid)
+      - name: Validar ventana horaria matinal en España
         id: time_check
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -31,12 +30,13 @@ jobs:
           LOCAL_HOUR=$(TZ="Europe/Madrid" date +%H)
           echo "Hora detectada en Madrid: $LOCAL_HOUR"
 
-          if [ "$LOCAL_HOUR" -eq 8 ]; then
+          # Ventana matinal: permite la entrega si arranca entre las 08:00 y las 09:59
+          if [ "$LOCAL_HOUR" -ge 8 ] && [ "$LOCAL_HOUR" -lt 10 ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
-            echo "Ventana horaria correcta (08:XX en Madrid). Procediendo."
+            echo "Ventana horaria matinal válida ($LOCAL_HOUR:XX). Procediendo con la entrega."
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
-            echo "Hora fuera de ventana (Madrid: $LOCAL_HOUR:XX). Omitiendo."
+            echo "Fuera de ventana matinal ($LOCAL_HOUR:XX). Omitiendo ejecución para evitar entregas a deshora."
           fi
 
       - name: Configurar entorno Python
@@ -66,7 +66,7 @@ jobs:
         run: |
           CURRENT_DAY=$(TZ="Europe/Madrid" date +%d)
           if [ "$CURRENT_DAY" = "01" ]; then
-            echo "Día 1 del mes: registrando actividad para mantener activo el workflow de GitHub."
+            echo "Día 1 del mes: registrando actividad en log.txt."
             echo "Keep-alive ping: $(TZ='Europe/Madrid' date '+%Y-%m-%d %H:%M:%S %Z')" >> log.txt
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
